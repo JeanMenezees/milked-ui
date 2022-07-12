@@ -1,50 +1,83 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import './button.css';
+import React, { useState } from "react";
 
-/**
- * Primary UI component for user interaction
- */
-export const Button = ({ primary, backgroundColor, size, label, ...props }) => {
-  const mode = primary ? 'storybook-button--primary' : 'storybook-button--secondary';
+import PropTypes from "prop-types";
+
+import styled from "styled-components";
+
+import { Text } from "../text/Text";
+
+const types = [
+  {
+    key: "primary",
+    color: "white",
+    backgroundColor: "black",
+    borderColor: "transparent",
+    hoveredBackgroundColor: "white",
+    hoveredColor: "black",
+  },
+  {
+    key: "secondary",
+    color: "black",
+    backgroundColor: "white",
+    borderColor: "black",
+    hoveredBackgroundColor: "black",
+    hoveredColor: "white",
+  },
+];
+
+const buttonType = (key) => {
+  const type = types.find((t) => t.key === key);
+
+  if (type) {
+    return type;
+  }
+
+  return types[0];
+};
+
+const ButtonContainer = styled.button`
+  background-color: ${(props) => props.backGroundColor};
+  padding: 0 1rem;
+  border: 0 solid;
+  border-color: ${(props) => buttonType(props.type).borderColor};
+  border-width: 0.175rem;
+  border-radius: 0.5rem;
+  text-align: center;
+
+  transition: 0.4s;
+
+  cursor: pointer;
+`;
+
+export const Button = ({ label, type }) => {
+  const [color, setColor] = useState(buttonType(type).color);
+  const [backGroundColor, setBackGroundColor] = useState(
+    buttonType(type).backgroundColor
+  );
+
   return (
-    <button
-      type="button"
-      className={['storybook-button', `storybook-button--${size}`, mode].join(' ')}
-      style={backgroundColor && { backgroundColor }}
-      {...props}
+    <ButtonContainer
+      type={type}
+      backGroundColor={backGroundColor}
+      onMouseEnter={() => {
+        setBackGroundColor(buttonType(type).hoveredBackgroundColor);
+        setColor(buttonType(type).hoveredColor);
+      }}
+      onMouseLeave={() => {
+        setBackGroundColor(buttonType(type).backgroundColor);
+        setColor(buttonType(type).color);
+      }}
     >
-      {label}
-    </button>
+      <Text value={label} color={color} as="p" size={"1rem"} weight={"700"} />
+    </ButtonContainer>
   );
 };
 
 Button.propTypes = {
-  /**
-   * Is this the principal call to action on the page?
-   */
-  primary: PropTypes.bool,
-  /**
-   * What background color to use
-   */
-  backgroundColor: PropTypes.string,
-  /**
-   * How large should the button be?
-   */
-  size: PropTypes.oneOf(['small', 'medium', 'large']),
-  /**
-   * Button contents
-   */
-  label: PropTypes.string.isRequired,
-  /**
-   * Optional click handler
-   */
-  onClick: PropTypes.func,
+  label: PropTypes.string,
+  type: PropTypes.oneOf(["primary", "secondary"]),
 };
 
 Button.defaultProps = {
-  backgroundColor: null,
-  primary: false,
-  size: 'medium',
-  onClick: undefined,
+  label: "Button",
 };
